@@ -2,9 +2,9 @@
 	<head>Test emscripten wasm</head>
 	<body>
 		<script type="module" async>
-			import world from "./world.js"
-			const Module = await world();
-			
+			import initModule from "./world.js"
+			const Module = await initModule();
+
 			console.log("Module Object", Module)
 			Module._PG_version()
 		</script>
