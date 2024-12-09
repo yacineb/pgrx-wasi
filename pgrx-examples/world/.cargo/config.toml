@@ -8,4 +8,5 @@ rustflags = [
     "-Clink-arg=-sMODULARIZE=1",
     "-Clink-arg=-sEXPORT_ES6=1",
     "-Clink-arg=-sEXPORT_NAME=Module",
+    "-Clink-arg=-sNO_EXIT_RUNTIME=1"
 ]
