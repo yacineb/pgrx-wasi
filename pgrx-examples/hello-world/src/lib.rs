@@ -1,17 +1,10 @@
-//LICENSE Portions Copyright 2019-2021 ZomboDB, LLC.
-//LICENSE
-//LICENSE Portions Copyright 2021-2023 Technology Concepts & Design, Inc.
-//LICENSE
-//LICENSE Portions Copyright 2023-2023 PgCentral Foundation, Inc. <contact@pgcentral.org>
-//LICENSE
-//LICENSE All rights reserved.
-//LICENSE
-//LICENSE Use of this source code is governed by the MIT license that can be found in the LICENSE file.
-use pgrx::prelude::*;
+#![no_std]
 
-::pgrx::pg_module_magic!();
+#[no_mangle]
+pub extern "C" fn PG_init() {
+}
 
-#[pg_extern]
-fn hello_world() -> &'static str {
-    "Hello World!"
+#[panic_handler]
+fn panic(_info: &core::panic::PanicInfo) -> ! {
+    loop {}
 }

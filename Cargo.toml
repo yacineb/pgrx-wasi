@@ -22,6 +22,7 @@ members = [
 ]
 exclude = [
     # "pgrx-examples/*",
+    "pgrx-examples/world",
     "pgrx-examples/hello-world",
     "pgrx-examples/aggregate",
     "pgrx-examples/arrays",
