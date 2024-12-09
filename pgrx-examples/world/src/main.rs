@@ -2,8 +2,9 @@
 
 #[no_mangle]
 pub fn PG_version() {
-    println!("Hello I'm pglite");
+    println!("Hello I'm pglite from Rust");
 }
+
 fn main() {
     // nothing needed here
 }

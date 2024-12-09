@@ -1,13 +1,12 @@
 <html>
 	<head>Test emscripten wasm</head>
 	<body>
-		<script type="text/javascript" src="./world.js"></script>
-		<script type="text/javascript">
-            Module["onRuntimeInitialized"] = function () {
-                console.log("emscripten Module", Module)
-
-                Module._PG_version()
-            }
+		<script type="module" async>
+			import world from "./world.js"
+			const Module = await world();
+			
+			console.log("Module Object", Module)
+			Module._PG_version()
 		</script>
 	</body>
 </html>
