@@ -4,11 +4,6 @@ version = "0.0.0"
 edition = "2021"
 publish = false
 
-[lib]
-crate-type = ["cdylib"]
-
-[features]
-
 [dependencies]
 
 # uncomment these if compiling outside of 'pgrx'
