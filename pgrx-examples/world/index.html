@@ -3,8 +3,11 @@
 	<body>
 		<script type="text/javascript" src="./world.js"></script>
 		<script type="text/javascript">
-            console.log("emscripten Module", Module)
-            console.log("PG_init",  Module._PG_version)
+            Module["onRuntimeInitialized"] = function () {
+                console.log("emscripten Module", Module)
+
+                Module._PG_version()
+            }
 		</script>
 	</body>
 </html>

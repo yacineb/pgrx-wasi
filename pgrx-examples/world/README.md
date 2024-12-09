@@ -1,4 +1,4 @@
-Examples for working with Rust strings and Postgres `text`/`varlena` types.
+# emscripten POC
 
-Here's a video that walks through these examples:
-   https://www.twitch.tv/videos/675826352
+
+Once this is built using `make build_ext_host` you can try it on the browser, run `bash ./browser-test.sh` and open `http://localhost:8080`and check browser logs!
