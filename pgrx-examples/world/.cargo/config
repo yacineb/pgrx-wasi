@@ -1,4 +1,5 @@
 [target.wasm32-unknown-emscripten]
+
 rustflags = [
-    "-Clink-args=-s EXPORTED_FUNCTIONS=['_PG_version'] -s ASSERTIONS=1",
+    "-Clink-args=-sEXPORTED_FUNCTIONS=['_PG_version'] -sEXPORTED_RUNTIME_METHODS=FS -sASSERTIONS=0 --closure 0 -sMODULARIZE=1 -sEXPORT_ES6=1 -sEXPORT_NAME=Module",
 ]
