@@ -10,8 +10,8 @@ publish = false
 # [profile.dev]
 # panic = "unwind"
 
-# [profile.release]
-# panic = "unwind"
-# opt-level = 3
+[profile.release]
+panic = "unwind"
+opt-level = 0
 # lto = "fat"
 # codegen-units = 1
