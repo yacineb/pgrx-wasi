@@ -5,8 +5,156 @@
 			import initModule from "./world.js"
 			const Module = await initModule();
 
-			console.log("Module Object", Module)
-			Module._PG_version()
+			console.log("Module Object", Module);
+			Module._PG_version();
+
+			globalThis.vm = Module
+
+			// import and load extension wasm
+			import { WasiPreview1 } from "./easywasi.js"
+
+			// Monkeypatch emscripten.FS
+			async function async_wasi_init(root_fs, pre, post) {
+				if (!root_fs.statSync) {
+					// MISSING:
+					for (let line of `
+			appendFileSync
+			fsyncSync
+			linkSync
+			setFlagsSync
+			mkdirSync
+			readdirSync
+			readFileSync
+			readlinkSync
+			renameSync
+			rmdirSync
+			statSync
+			symlinkSync
+			truncateSync
+			unlinkSync
+			utimesSync
+			writeFileSync
+			`.split('\n')){
+						if (!line.length)
+							continue
+						const target = line.slice(0, line.length -4)
+						try {
+							root_fs[line] = root_fs[target].bind(root_fs)
+						} catch (x) {
+							console.warn("EMSDK FS MISSING :", line, target)
+							root_fs[line] = ((...args) => { console.log("FS missing",line); return true}).bind(root_fs)
+						}
+					}
+				}
+
+
+				if (pre) {
+					await pre(root_fs)
+				}
+
+				const tdec = new TextDecoder()
+				const tenc = new TextEncoder("utf-8")
+				var os = {
+					'umask' : 18, // make files executable rx
+					'PATH' : {},
+					'FS'   : root_fs,
+					'system': os_system,
+					'codec' : { decode : (data) => tdec.decode(data) , encode : (data) => tenc.encode(data) },
+					'sched_yield'  : os_sched_yield,
+
+					'exec': os_exec,
+					'mkdir' : os_mkdir,
+					'listdir' : os_listdir,
+				}
+
+				if (post) {
+					await post(os)
+				}
+				globalThis.os = os
+				return os
+			}
+
+			globalThis.async_wasi_init = async_wasi_init
+
+			async function os_exec(bin, ...stack) {
+				var kw = {PWD: '/'}
+
+				if (stack.length) {
+					if (isMapping(stack[stack.length-1])) {
+						update(kw, stack.pop())
+					}
+				}
+				var argv= [bin]
+					argv.push(...stack)
+
+				var wasi = new WasiPreview1({
+					fs: os.FS,
+					args: argv,
+					env: kw,
+				})
+
+				wasi.stdout = kw["stdout"] || ( (msg) => vm.vt.xterm.write(os.codec.decode(msg)+"\r") )
+				wasi.stderr = kw["stderr"] || ( (msg) => vm.vt.xterm.write('\x1B[1;3;31m' + os.codec.decode(msg) + "\x1B[0m\r") )
+
+				const exe = `bin/${bin}.wasm`
+				console.log("Loading wasi bin : ", bin, "from", exe, "in", vm )
+
+				os.PATH[bin] = await WebAssembly.instantiateStreaming(fetch(exe), {
+					wasi_snapshot_preview1:wasi,
+					env: { 
+						memory: vm.memory,
+						PG_version: vm._PG_version,
+					}
+				})
+				var app= os.PATH[bin]
+					app.wasi = wasi
+					app.cmdline = exe+" "+ stack.join(' ')
+					app.codec = kw["encoding"] || os.codec
+				console.log(app)
+				var ec = 0
+				try {
+					ec = wasi.start(app.instance.exports)
+				} catch (x) {
+					console.trace()
+					console.warn("abnormal program termination", x)
+				}
+				console.log(`${bin} ${wasi.args}  exit code = ${ec}`)
+				return ec
+			}
+	        function os_system() {
+				console.debug("os_system")
+			}
+
+			function os_sched_yield() {
+				console.debug("os_sched_yield")
+			}
+
+			function os_mkdir(path) {
+				os.FS.mkdir(path, { recursive: true, mode: os.umask} )
+			}
+
+			function os_listdir(path) {
+				var entries = os.FS.readdir(path)
+				console.log(`--------- ${path} -------------`)
+				for (var i=0;i<entries.length;i++) {
+					console.log(entries[i]);
+				}
+				console.log(`------------------------------`)
+			}
+
+			await async_wasi_init(Module.FS, null, null);
+			
+/* 			var defineEnv = {
+					env: {
+						log: (value) => console.log("Logged from WASM:", value),
+				        PG_version: Module._PG_version,
+						//memory: new WebAssembly.Memory({ initial: 1, maximum: 10 }), // Example memory
+						//table: new WebAssembly.Table() // Example table
+					}
+			};
+ */
+			await os_exec("helloworld")
+
 		</script>
 	</body>
 </html>

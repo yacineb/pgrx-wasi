@@ -13,4 +13,4 @@ This directory contains examples of how to work with various aspects of `pgrx`.
 - [schemas/](schemas/):  How `pgrx` uses Postgres schemas
 - [srf/](srf/):  Set-Returning-Functions
 - [spi/](spi/):  Using Postgres' Server Programming Interface (SPI)
-- [strings/](strings/):  Using Postgres `text`/`varlena` types as Rust `String`s and `&str`s
+- [strings/](strings/):  Using Postgres `text`/`varlena` types as Rust `String`s and `&str`
